@@ -40,15 +40,17 @@ export class ModalIngredientFormComponent {
     //saveIngredient = new EventEmitter<Ingredient>();
     saveIngredient(ingredient: Ingredient) {
         // ingredient = { ...DEFAULT_INGREDIENT };
-        // alert(`${ingredient}`);
-        // return ingredient;
-        this.activeModal.close('refresh');
+        //console.log("Ingrédient envoyé par le formulaire au modal : ", ingredient);  
+        this.activeModal.close(ingredient);
     }
 
     resetForm(): void {
         this.selectedIngredient = { ...DEFAULT_INGREDIENT };     
         this.isEditing = false;
     }
+
+
+    
 
     
 }

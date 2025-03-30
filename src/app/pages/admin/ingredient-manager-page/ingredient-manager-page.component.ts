@@ -13,39 +13,14 @@ import { ModalIngredientFormComponent } from '../../../shared/modal-ingredient-f
 
 export class IngredientManagerPageComponent implements OnInit {
 
-
-    // Gestion du modal formulaire pour l'ajout/modification d'un ingrédient :
-    // -----------------------------------------------------------------------
-    openModalFormIngredient(ingredient?: Ingredient) {
-        const modalRef = this.modalService.open(ModalIngredientFormComponent, {
-            centered: true,
-            size: 'lg'            
-        });
-        modalRef.componentInstance.titre = "Ajout d'un nouvel ingrédient";
-        modalRef.componentInstance.message = "Renseignez les valeurs de votre nouvel ingrédient";
-
-        // Gestion des actions :
-        modalRef.result.then((result) => {
-            if (result === Ingredient) {              
-                this.saveIngredient(result);
-            }
-        })
-
-    }
-
-
     // Attributs du composant :
     // ------------------------
 
     ingredients: Ingredient[] = [];
     // message: string = '';
-    isEditing: boolean = false; // Permet de savoir si on est en mode édition
-    //ingredientToEditId: number | null = null;
-    
-
-    // Objet Ingredient de travail :
-    // -----------------------------    
-    selectedIngredient: Ingredient = { ...DEFAULT_INGREDIENT };
+    isEditing: boolean = false; // Permet de savoir si on est en mode édition  sur selectedIngredient  
+    selectedIngredient: Ingredient = { ...DEFAULT_INGREDIENT }; // Ingrédient sélectionné pour ajout/édition
+    //ingredientToEditId: number | null = null; 
 
 
     // Constructeur avec injection des services :
@@ -54,6 +29,27 @@ export class IngredientManagerPageComponent implements OnInit {
         private ingredientService: IngredientService,
         private modalService: NgbModal
     ) {}
+
+
+    // Gestion du modal formulaire pour l'ajout/modification d'un ingrédient :
+    // -----------------------------------------------------------------------
+    openModalFormIngredient(ingredient?: Ingredient, isEditing?: boolean) {
+        const modalRef = this.modalService.open(ModalIngredientFormComponent, {
+            centered: true,
+            size: 'lg'            
+        });
+        modalRef.componentInstance.titre = "Ajout d'un nouvel ingrédient";
+        modalRef.componentInstance.message = "Renseignez les valeurs de votre nouvel ingrédient";
+        modalRef.componentInstance.selectedIngredient = ingredient;
+        modalRef.componentInstance.isEditing = isEditing;
+
+        // Gestion des actions :
+        modalRef.result.then((ingredient) => {                
+            //console.log("Ingredient envoyé par le modal : ", ingredient)      
+            this.saveIngredient(ingredient); // Enregistre (updatae ou ajoute) l'ingrédient retourné par le modal
+            this.resetForm(); // Rafraichir la liste des ingrédients
+        })
+    }
 
 
     // Fetch avec le service à l'initialisation :
@@ -121,11 +117,15 @@ export class IngredientManagerPageComponent implements OnInit {
      * Prépare la modification d'un ingrédient en remplissant le formulaire avec ses données.
      * @param ingredient L'ingrédient à modifier.
      */
-    editIngredient(ingredient: Ingredient): void {
+    editIngredient(ingredient: Ingredient): void {        
         this.selectedIngredient = { ...ingredient }; // Clone l'objet pour éviter les modifications directes
         //this.ingredientToEditId = ingredient.id;
+        //console.log("Ingrédient à modifier : ", this.selectedIngredient);
         this.isEditing = true;
+        this. openModalFormIngredient(this.selectedIngredient, this.isEditing); // Ouverture du modal pour modification        
+        //TODO : Gérer/vérifier l'annulation de la modification dans le modal...
     }
+    
 
     /**
      * Supprime un ingrédient via l'API.
